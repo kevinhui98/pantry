@@ -73,7 +73,9 @@ export default function Home() {
             Add Item
           </Typography>
           <Stack direction={"row"} spacing={2}>
-            <TextField id="outlined-basic" label="item" variant="outlined" fullWidth />
+            <TextField id="outlined-basic" label="item" variant="outlined" fullWidth
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
                 addItem(itemname)
