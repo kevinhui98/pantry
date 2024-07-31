@@ -1,7 +1,7 @@
 'use client'
 import { Box, Stack, Typography, Button, Modal, TextField } from "@mui/material";
 import { firestore } from "../firebase";
-import { collection, doc, getDocs, query, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, deleteDoc, count } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 // Modal style
@@ -36,7 +36,7 @@ export default function Home() {
     const docs = await getDocs(snapshot);
     const pantryList = [];
     docs.forEach(doc => {
-      pantryList.push(doc.id);
+      pantryList.push({ name: doc.id, ...doc.data() });
     });
     console.log(pantryList);
     setPantry(pantryList);
@@ -48,7 +48,17 @@ export default function Home() {
 
   const addItem = async (item) => {
     const docRef = doc(collection(firestore, 'pantry'), item)
-    await setDoc(docRef, {});
+    const docSnap = await getDocs(docRef);
+    //if the document already exists, update the count
+    if (docSnap.exists()) {
+      const count = docSnap.data().count + 1;
+      await setDoc(docRef, { count });
+    }
+    else {
+      //if the document does not exist, create a new document with the item name and count 1
+      await setDoc(docRef, { count: 1 });
+
+    }
     await updatePantries();
   }
 
@@ -111,9 +121,9 @@ export default function Home() {
           overflow={'scroll'}
         >
           {
-            pantry.map(i => (
+            pantry.map(({ name, count }) => (
               <Box
-                key={i}
+                key={name}
                 width={'100%'}
                 minHeight={'150px'}
                 bgcolor={'#f0f0f0'}
@@ -128,10 +138,15 @@ export default function Home() {
                   textAlign={'center'}>
                   {
                     // Capitalize the first letter fo the item
-                    i.charAt(0).toUpperCase() + i.slice(1)
+                    name.charAt(0).toUpperCase() + name.slice(1)
                   }
                 </Typography>
-                <Button variant={"contained"} color={"error"} onClick={() => removeItem(i)} size="small" >Remove</Button>
+                <Typography
+                  variant={"h3"}
+                  color={"#333"}
+                  textAlign={'center'}>
+                  Quantity: {count}</Typography>
+                <Button variant={"contained"} color={"error"} onClick={() => removeItem(name)} size="small" >Remove</Button>
               </Box>
             ))
           }
