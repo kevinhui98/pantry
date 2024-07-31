@@ -1,7 +1,7 @@
 'use client'
 import { Box, Stack, Typography, Button, Modal, TextField } from "@mui/material";
 import { firestore } from "../firebase";
-import { collection, doc, getDocs, query, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 // Modal style
@@ -49,9 +49,15 @@ export default function Home() {
   const addItem = async (item) => {
     const docRef = doc(collection(firestore, 'pantry'), item)
     await setDoc(docRef, {});
-    updatePantries();
+    await updatePantries();
   }
 
+  const removeItem = async (item) => {
+    //delete the document with the item name
+    const docRef = doc(collection(firestore, 'pantry'), item);
+    await deleteDoc(docRef);
+    await updatePantries();
+  }
   return (
     <Box
       width="100vw"
@@ -112,10 +118,10 @@ export default function Home() {
                 minHeight={'150px'}
                 bgcolor={'#f0f0f0'}
                 display={'flex'}
-                justifyContent={'center'}
+                justifyContent={'space-between'}
                 alignItems={'center'}
+                paddingX={5}
               >
-
                 <Typography
                   variant={"h3"}
                   color={"#333"}
@@ -125,6 +131,7 @@ export default function Home() {
                     i.charAt(0).toUpperCase() + i.slice(1)
                   }
                 </Typography>
+                <Button variant={"contained"} color={"error"} onClick={() => removeItem(i)} size="small" >Remove</Button>
               </Box>
             ))
           }
