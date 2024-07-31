@@ -1,7 +1,7 @@
 'use client'
 import { Box, Stack, Typography, Button, Modal, TextField } from "@mui/material";
 import { firestore } from "../firebase";
-import { collection, doc, getDocs, query, setDoc, deleteDoc, count } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, deleteDoc, count, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 // Modal style
@@ -48,7 +48,7 @@ export default function Home() {
 
   const addItem = async (item) => {
     const docRef = doc(collection(firestore, 'pantry'), item)
-    const docSnap = await getDocs(docRef);
+    const docSnap = await getDoc(docRef);
     //if the document already exists, update the count
     if (docSnap.exists()) {
       const count = docSnap.data().count + 1;
