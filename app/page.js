@@ -3,8 +3,8 @@ import { Box, Stack, Typography, Button, Modal, TextField, IconButton, MenuItem,
 import DeleteIcon from '@mui/icons-material/Delete';
 import { firestore } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useRef } from "react";
+import { Camera } from "./Camera.js";
 // Modal style
 const style = {
   position: 'absolute',
@@ -112,6 +112,18 @@ export default function Home() {
     // console.log(pantryList);
     // setPantry(pantryList);
   }
+  // const OpenCamera = async () => {
+  //   const camera = useRef(null);
+  //   const [image, setImage] = useState(null);
+
+  //   return (
+  //     <div>
+  //       <Camera ref={camera} />
+  //       <button onClick={() => setImage(camera.current.takePhoto())}>Take photo</button>
+  //       <image src={image} alt='Taken photo' />
+  //     </div>
+  //   );
+  // }
   return (
     <Box
       width="100vw"
@@ -207,10 +219,11 @@ export default function Home() {
       <Box>
         <Stack direction={"row"} spacing={4}>
           <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
-          <Box>
-            <Button variant={"contained"} color={"primary"}
-              onClick={handleSearchOpen}>Search</Button>
-          </Box>
+          <Button variant={"contained"} color={"primary"}
+            onClick={handleSearchOpen}>Search</Button>
+          <Button variant={"contained"} color={"primary"}
+            onClick={<Camera />}>Open Camera</Button>
+          {/* <Camera /> */}
         </Stack>
       </Box>
       <Box border={'1px solid #333'}>
@@ -220,7 +233,6 @@ export default function Home() {
           <Typography variant={"h2"} color={"#333"} textAlign={'center'}>
             Pantry Items
           </Typography>
-
         </Box>
         <Stack
           width={'800px'}
@@ -236,27 +248,45 @@ export default function Home() {
                 minHeight={'150px'}
                 bgcolor={'#f0f0f0'}
                 display={'flex'}
-                justifyContent={'space-between'}
                 alignItems={'center'}
+                gap={2}
                 paddingX={5}
               >
-                <Typography
-                  variant={"h3"}
-                  color={"#333"}
-                  textAlign={'center'}>
-                  {
-                    // Capitalize the first letter fo the item
-                    name.charAt(0).toUpperCase() + name.slice(1)
-                  }
-                </Typography>
-                <Typography
-                  variant={"h3"}
-                  color={"#333"}
-                  textAlign={'center'}>
-                  Quantity: {count}</Typography>
-                <IconButton aria-label="delete" color={"error"} onClick={() => removeItem(name)}>
-                  <DeleteIcon />
-                </IconButton>
+                <Box width={'100px'} height={"100px"} bgcolor={"blue"}>
+                  <img src={`https://source.unsplash.com/150x150/?${name}`} alt={name} />
+                </Box>
+                <Stack display={'flex'} justifyContent={'space-between'} alignItems={'center'} direction={'row'} gap={50}>
+                  <Stack direction={"column"} gap={4}>
+                    <Typography
+                      variant={"h4"}
+                      color={"#333"}
+                      textAlign={'center'}
+
+                    >
+                      {
+                        // Capitalize the first letter fo the item
+                        name.charAt(0).toUpperCase() + name.slice(1)
+                      }
+                    </Typography>
+                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"}>Pantry</Typography>
+                  </Stack>
+                  <Stack direction={"column"} gap={4}>
+                    <Typography
+                      variant={"h8"}
+                      color={"#333"}
+                      textAlign={'center'}
+                      display={'flex'}
+                      justifyContent={'center'}
+                      alignItems={'center'}
+                    >
+                      Quantity: {count}</Typography>
+                    <IconButton aria-label="delete" color={"error"} onClick={() => removeItem(name)} display={"flex"}
+                      justifyContent={'end'}
+                      alignItems={'end'}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                </Stack>
               </Box>
             ))
           }
