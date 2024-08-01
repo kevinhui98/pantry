@@ -1,7 +1,7 @@
 'use client'
 import { Box, Stack, Typography, Button, Modal, TextField } from "@mui/material";
 import { firestore } from "../firebase";
-import { collection, doc, getDocs, query, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 // Modal style
@@ -22,12 +22,20 @@ const style = {
 
 export default function Home() {
   const [pantry, setPantry] = useState([]);
-  // Modal state
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  // Add Modal state
+  const [addOpen, setAddOpen] = useState(false);
+  const handleAddOpen = () => setAddOpen(true);
+  const handleAddClose = () => setAddOpen(false);
+
+  const [searchOpen, setSearchOpen] = useState(false);
+  const handleSearchOpen = () => setSearchOpen(true);
+  const handleSearchClose = () => setSearchOpen(false);
+
+
   // Searching for items within modal
   const [itemname, setItemName] = useState('');
+  const [searchItem, setSearchItem] = useState('');
+  const [itemCount, setItemCount] = useState(0);
   // useEffect to get all the pantry items from firestore
   const updatePantries = async () => {
     //create a query to get all the documents in the pantry collection
@@ -36,7 +44,7 @@ export default function Home() {
     const docs = await getDocs(snapshot);
     const pantryList = [];
     docs.forEach(doc => {
-      pantryList.push(doc.id);
+      pantryList.push({ name: doc.id, ...doc.data() });
     });
     console.log(pantryList);
     setPantry(pantryList);
@@ -60,6 +68,40 @@ export default function Home() {
     await updatePantries();
   }
 
+  const removeItem = async (item) => {
+    //delete the document with the item name
+    const docRef = doc(collection(firestore, 'pantry'), item);
+    await deleteDoc(docRef);
+    await updatePantries();
+  }
+
+  const search = async (item, count) => {
+    console.log(item);
+    //create a query to get the document with the item name
+    const pantryref = collection(firestore, 'pantry')
+    const q1 = query(pantryref, where('name', '==', item))
+    // const q2 = query(pantryref, where('count', '==', count))
+    const querySnapshot1 = await getDocs(q1);
+    // const querySnapshot2 = await getDocs(q2);
+    // console.log(querySnapshot2);
+    const pantryList = [];
+    // querySnapshot1.forEach(doc => {
+    //   pantryList.push({ name: doc.id, ...doc.data() });
+    // });
+    // querySnapshot2.forEach(doc => {
+    //   pantryList.push({ name: doc.id, ...doc.data() });
+    // });
+    console.log(pantryList);
+    setPantry(pantryList);
+    // const snapshot = query(collection(firestore, 'pantry'), or());
+    // const docs = await getDocs(snapshot);
+    // const pantryList = [];
+    // docs.forEach(doc => {
+    //   pantryList.push({ name: doc.id, ...doc.data() });
+    // });
+    // console.log(pantryList);
+    // setPantry(pantryList);
+  }
   return (
     <Box
       width="100vw"
@@ -71,8 +113,8 @@ export default function Home() {
       gap={2}
     >
       <Modal
-        open={open}
-        onClose={handleClose}
+        open={addOpen}
+        onClose={handleAddClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -80,7 +122,7 @@ export default function Home() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add Item
           </Typography>
-          <Stack direction={"row"} spacing={2}>
+          <Stack direction={"column"} spacing={2}>
             <TextField id="outlined-basic" label="item" variant="outlined" fullWidth
               onChange={(e) => setItemName(e.target.value)}
             />
@@ -88,15 +130,48 @@ export default function Home() {
               onClick={() => {
                 addItem(itemname)
                 setItemName("")
-                handleClose()
+                handleAddClose()
               }
 
               }>Add</Button>
           </Stack>
         </Box>
       </Modal>
-      <Button variant={"contained"} color={"primary"} onClick={handleOpen}>Add</Button>
+      <Modal
+        open={searchOpen}
+        onClose={handleSearchClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Search Item
+          </Typography>
+          <Stack direction={"column"} spacing={2}>
+            <TextField id="outlined-basic" label="Quantity" variant="outlined" fullWidth type="number"
+              onChange={(e) => setItemCount(e.target.value)}
+            />
+            <Button variant={"contained"} color={"primary"}
+              onClick={() => {
+                search(searchItem, itemCount)
+                setSearchItem("")
+                setItemCount(0)
+                handleSearchClose()
+              }
 
+              }>Search</Button>
+          </Stack>
+        </Box>
+      </Modal>
+      <Box>
+        <Stack direction={"row"} spacing={4}>
+          <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
+          <Box>
+            <Button variant={"contained"} color={"primary"}
+              onClick={handleSearchOpen}>Search</Button>
+          </Box>
+        </Stack>
+      </Box>
       <Box border={'1px solid #333'}>
         <Box width={"800px"} height={"100px"} bgcolor={"#ADD8E6"} display={"flex"}
           justifyContent={"center"} alignItems={"center"}
@@ -113,26 +188,32 @@ export default function Home() {
           overflow={'scroll'}
         >
           {
-            pantry.map(i => (
+            pantry.map(({ name, count }) => (
               <Box
-                key={i}
+                key={name}
                 width={'100%'}
                 minHeight={'150px'}
                 bgcolor={'#f0f0f0'}
                 display={'flex'}
-                justifyContent={'center'}
+                justifyContent={'space-between'}
                 alignItems={'center'}
+                paddingX={5}
               >
-
                 <Typography
                   variant={"h3"}
                   color={"#333"}
                   textAlign={'center'}>
                   {
                     // Capitalize the first letter fo the item
-                    i.charAt(0).toUpperCase() + i.slice(1)
+                    name.charAt(0).toUpperCase() + name.slice(1)
                   }
                 </Typography>
+                <Typography
+                  variant={"h3"}
+                  color={"#333"}
+                  textAlign={'center'}>
+                  Quantity: {count}</Typography>
+                <Button variant={"contained"} color={"error"} onClick={() => removeItem(name)} size="small" >Remove</Button>
               </Box>
             ))
           }
