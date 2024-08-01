@@ -56,7 +56,9 @@ export default function Home() {
     console.log(pantryList);
     setPantry(pantryList);
   }
-
+  useEffect(() => {
+    updatePantries();
+  }, []);
   const addItem = async (cat, item, quantity) => {
     if (cat === "") cat = "pantry";
     const docRef = doc(collection(firestore, cat), item)
