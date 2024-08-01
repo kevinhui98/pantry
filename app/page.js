@@ -75,7 +75,7 @@ export default function Home() {
     await updatePantries();
   }
 
-  const search = async (item, count) => {
+  const search = async (item) => {
     console.log(item);
     //create a query to get the document with the item name
     const pantryref = collection(firestore, 'pantry')
@@ -148,14 +148,13 @@ export default function Home() {
             Search Item
           </Typography>
           <Stack direction={"column"} spacing={2}>
-            <TextField id="outlined-basic" label="Quantity" variant="outlined" fullWidth type="number"
-              onChange={(e) => setItemCount(e.target.value)}
+            <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
+              onChange={(e) => setSearchItem(e.target.value)}
             />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                search(searchItem, itemCount)
+                search(searchItem)
                 setSearchItem("")
-                setItemCount(0)
                 handleSearchClose()
               }
 
