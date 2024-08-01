@@ -41,15 +41,23 @@ export default function Home() {
     console.log(pantryList);
     setPantry(pantryList);
   }
-  useEffect(() => {
-
-    updatePantries();
-  }, [])
 
   const addItem = async (item) => {
     const docRef = doc(collection(firestore, 'pantry'), item)
-    await setDoc(docRef, {});
-    updatePantries();
+    const subCat = await getDoc(docRef);
+    //if the document already exists, update the count
+    if (subCat.exists()) {
+      // console.log("subCat ", subCat.data());
+      const name = subCat.data().name;
+      const count = subCat.data().count + 1;
+      await setDoc(docRef, { name, count });
+    }
+    else {
+      //if the document does not exist, create a new document with the item name and count 1
+      await setDoc(docRef, { name: item, count: 1 });
+
+    }
+    await updatePantries();
   }
 
   return (
