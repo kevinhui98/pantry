@@ -1,11 +1,13 @@
 'use client'
-import { Box, Stack, Typography, Button, Modal, TextField, IconButton, MenuItem, FormControl, Select, InputLabel, Grid } from "@mui/material";
+import { Box, Stack, Typography, Button, Modal, TextField, IconButton, Grid, Divider, Slider, Input } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Remove from "@mui/icons-material/Remove";
+import Add from "@mui/icons-material/Add";
 import { firestore } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
 import { useEffect, useState, useRef, Fragment } from "react";
-// import { Camera } from "./Camera";
 import { Camera } from "react-camera-pro";
 // Modal style
 const style = {
@@ -22,8 +24,6 @@ const style = {
   flexDirection: 'column',
   gap: 3,
 };
-
-
 export default function Home() {
   const [pantry, setPantry] = useState([]);
   // Add Modal state
@@ -45,7 +45,7 @@ export default function Home() {
   const [itemname, setItemName] = useState('');
   const [catagory, setCatagory] = useState('');
   const [searchItem, setSearchItem] = useState('');
-  const [itemCount, setItemCount] = useState(0);
+  const [searchCatagory, setSearchCatagory] = useState('');
   const [saveImage, setSaveImage] = useState(null);
   // useEffect to get all the pantry items from firestore
   const updatePantries = async () => {
@@ -89,20 +89,20 @@ export default function Home() {
     await updatePantries();
   }
 
-  const search = async (item) => {
+  const search = async (item, cat) => {
     //create a query to get the document with the item name
     const pantryref = collection(firestore, 'pantry')
     const q1 = query(pantryref, where('name', '==', item))
-    // const q2 = query(pantryref, where('count', '==', count))
+    const q2 = query(pantryref, where('catagory', '==', cat))
     const querySnapshot1 = await getDocs(q1);
-    // const querySnapshot2 = await getDocs(q2);
+    const querySnapshot2 = await getDocs(q2);
     const pantryList = [];
-    // querySnapshot1.forEach(doc => {
-    //   pantryList.push({ name: doc.id, ...doc.data() });
-    // });
-    // querySnapshot2.forEach(doc => {
-    //   pantryList.push({ name: doc.id, ...doc.data() });
-    // });
+    querySnapshot1.forEach(doc => {
+      pantryList.push({ name: doc.id, ...doc.data() });
+    });
+    querySnapshot2.forEach(doc => {
+      pantryList.push({ name: doc.id, ...doc.data() });
+    });
     setPantry(pantryList);
     // const snapshot = query(collection(firestore, 'pantry'), or());
     // const docs = await getDocs(snapshot);
@@ -112,7 +112,7 @@ export default function Home() {
     // });
     // setPantry(pantryList);
   }
-  function ChildModal() {
+  const ChildModal = () => {
     const camera = useRef(null);
     const [image, setImage] = useState(null);
     const [open, setOpen] = useState(false);
@@ -151,6 +151,19 @@ export default function Home() {
       </Fragment>
     );
   }
+  // add quantity slider
+  const [value, setValue] = useState(1);
+  const handleSliderChange = (event, newValue) => setValue(newValue);
+  const handleInputChange = (event) => {
+    setValue(event.target.value === '' ? 1 : Number(event.target.value));
+  };
+  const handleBlur = () => {
+    if (value < 1) {
+      setValue(1);
+    } else if (value > 10) {
+      setValue(10);
+    }
+  };
   return (
     <Box
       width="100vw"
@@ -169,13 +182,13 @@ export default function Home() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add Item
           </Typography>
-          <Stack direction={"column"} spacing={2}>
+          <Stack direction={"column"} spacing={2} >
             <TextField id="outlined-basic" label="pantry (optional)" variant="outlined" fullWidth
               onChange={(e) => setCatagory(e.target.value)} />
             <Stack direction={'row'} spacing={2}>
               <TextField id="outlined-basic" label="item" variant="outlined" fullWidth
                 onChange={(e) => setItemName(e.target.value)} required />
-              <FormControl sx={{ m: 1, minWidth: 120 }} >
+              {/* <FormControl sx={{ m: 1, minWidth: 120 }} >
                 <InputLabel id="demo-controlled-open-select-label">Quantity</InputLabel>
                 <Select
                   labelId="demo-controlled-open-select-label"
@@ -199,9 +212,66 @@ export default function Home() {
                   <MenuItem value={8}>8</MenuItem>
                   <MenuItem value={9}>9</MenuItem>
                 </Select>
-              </FormControl>
+              </FormControl> */}
+              {/* <Divider orientation="vertical" flexItem />
+              <Slider
+                defaultValue={1}
+                step={1}
+                min={1}
+                max={10}
+                valueLabelDisplay="auto"
+                justifyContent={"center"}
+                alignItems={"center"}
+                onChange={(e, value) => setQuantity(value)}
+              /> */}
             </Stack>
+            <Box id={"quantity"}>
+              <Typography id="input-slider" gutterBottom>
+                Quantity
+              </Typography>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item>
+                  <IconButton sx={{ cursor: 'pointer' }} onClick={(e) => {
+                    if (value > 1) handleSliderChange(e, value - 1)
+                  }} onChange={handleSliderChange}>
+                    <Remove />
+                  </IconButton>
+                </Grid>
+                <Grid item xs>
+                  <Slider
+                    value={typeof value === 'number' ? value : 1}
+                    onChange={handleSliderChange}
+                    aria-labelledby="input-slider"
+                    step={1}
+                    min={1}
+                    max={10}
+                  />
+                </Grid>
+                <Grid item>
+                  <IconButton sx={{ cursor: 'pointer' }} onClick={(e) => {
+                    if (value > 10) handleSliderChange(e, value + 1)
+                  }} onChange={handleSliderChange}>
+                    <Add />
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <Input
+                    value={value}
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    inputProps={{
+                      step: 1,
+                      min: 0,
+                      max: 10,
+                      type: 'number',
+                      'aria-labelledby': 'input-slider',
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
             <ChildModal />
+            <Divider orientation="horizontal" flexItem />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
                 addItem(catagory, itemname, quantity, saveImage)
@@ -215,7 +285,7 @@ export default function Home() {
             </Button>
           </Stack>
         </Box>
-      </Modal>
+      </Modal >
       <Modal
         open={searchOpen}
         onClose={handleSearchClose}
@@ -227,25 +297,28 @@ export default function Home() {
             Search Item
           </Typography>
           <Stack direction={"column"} spacing={2}>
+            <TextField id="outlined-basic" label="Catagory" variant="outlined" fullWidth
+              onChange={(e) => setSearchCatagory(e.target.value)}
+            />
             <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
               onChange={(e) => setSearchItem(e.target.value)}
             />
+            <Divider orientation="horizontal" flexItem />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                search(searchItem)
+                search(searchItem, searchCatagory)
                 setSearchItem("")
+                setSearchCatagory("")
                 handleSearchClose()
-              }
-
-              }>Search</Button>
+              }}>Search</Button>
           </Stack>
         </Box>
       </Modal>
       <Box>
-        <Stack direction={"row"} spacing={4}>
+        <Stack direction={"row"} spacing={4} divider={<Divider orientation="vertical" flexItem />}>
           <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
-          <Button variant={"contained"} color={"primary"}
-            onClick={handleSearchOpen}>Search</Button>
+          <Button variant={"contained"} color={"primary"} onClick={handleSearchOpen}>Search</Button>
+          <Button variant={"contained"} color={"primary"} onClick={updatePantries} startIcon={<RefreshIcon />}> Refresh</Button>
         </Stack>
       </Box>
       <Box border={'1px solid #333'}>
@@ -272,7 +345,7 @@ export default function Home() {
                 gap={2}
                 paddingX={5}>
                 <Box width={133} height={82.5} bgcolor={"blue"}>
-                  <img src={image} alt={name} aspectRatio={4 / 3} width={110} height={82.5} />
+                  <img src={image} alt={name} aspectpatio={4 / 3} width={110} height={82.5} />
                 </Box>
                 <Grid container justifyContent={'space-between'} alignItems={'center'} direction={'row'} spacing={{ xs: 1, sm: 2 }}>
                   <Grid item md={8}>
@@ -301,8 +374,7 @@ export default function Home() {
                       aria-label="delete"
                       color={"error"}
                       onClick={() => removeItem(name)} display={"flex"}
-                      justifyContent={'end'}
-                      alignItems={'end'}>
+                      sx={{ cursor: 'pointer' }}>
                       <DeleteIcon />
                     </IconButton>
                   </Grid>
@@ -312,6 +384,6 @@ export default function Home() {
           }
         </Stack>
       </Box>
-    </Box>
+    </Box >
   );
 }
