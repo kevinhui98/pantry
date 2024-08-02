@@ -57,13 +57,13 @@ export default function Home() {
     docs.forEach(doc => {
       pantryList.push({ name: doc.id, ...doc.data() });
     });
-    console.log(pantryList);
+    console.log("pantryList", pantryList);
     setPantry(pantryList);
   }
   useEffect(() => {
     updatePantries();
   }, []);
-  const addItem = async (cat, item, quantity) => {
+  const addItem = async (cat, item, quantity, img) => {
     if (cat === "") cat = "pantry";
     const docRef = doc(collection(firestore, cat), item)
     const subCat = await getDoc(docRef);
@@ -71,12 +71,13 @@ export default function Home() {
     if (subCat.exists()) {
       // console.log("subCat ", subCat.data());
       const name = subCat.data().name;
+      if (img === null) img = subCat.data().image;
       const count = subCat.data().count + quantity;
-      await setDoc(docRef, { name, count, catagory: cat });
+      await setDoc(docRef, { name, count, catagory: cat, image: img });
     }
     else {
       //if the document does not exist, create a new document with the item name and count 1
-      await setDoc(docRef, { name: item, count: quantity, catagory: cat });
+      await setDoc(docRef, { name: item, count: quantity, catagory: cat, image: img });
 
     }
     await updatePantries();
@@ -90,14 +91,12 @@ export default function Home() {
   }
 
   const search = async (item) => {
-    console.log(item);
     //create a query to get the document with the item name
     const pantryref = collection(firestore, 'pantry')
     const q1 = query(pantryref, where('name', '==', item))
     // const q2 = query(pantryref, where('count', '==', count))
     const querySnapshot1 = await getDocs(q1);
     // const querySnapshot2 = await getDocs(q2);
-    // console.log(querySnapshot2);
     const pantryList = [];
     // querySnapshot1.forEach(doc => {
     //   pantryList.push({ name: doc.id, ...doc.data() });
@@ -105,7 +104,6 @@ export default function Home() {
     // querySnapshot2.forEach(doc => {
     //   pantryList.push({ name: doc.id, ...doc.data() });
     // });
-    console.log(pantryList);
     setPantry(pantryList);
     // const snapshot = query(collection(firestore, 'pantry'), or());
     // const docs = await getDocs(snapshot);
@@ -113,7 +111,6 @@ export default function Home() {
     // docs.forEach(doc => {
     //   pantryList.push({ name: doc.id, ...doc.data() });
     // });
-    // console.log(pantryList);
     // setPantry(pantryList);
   }
   // const OpenCamera = async () => {
@@ -225,11 +222,11 @@ export default function Home() {
             <ChildModal />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                console.log(catagory, itemname)
-                addItem(catagory, itemname, quantity)
+                addItem(catagory, itemname, quantity, saveImage)
                 setCatagory("")
                 setItemName("")
-                setQuantity(0)
+                setQuantity(1)
+                setSaveImage(null)
                 handleAddClose()
               }}>Add</Button>
           </Stack>
@@ -282,7 +279,7 @@ export default function Home() {
           overflow={'scroll'}
         >
           {
-            pantry.map(({ name, count }) => (
+            pantry.map(({ name, count, catagory = 'pantry', image = "pantry" }) => (
               <Box
                 key={name}
                 width={'100%'}
@@ -294,7 +291,7 @@ export default function Home() {
                 paddingX={5}
               >
                 <Box width={'100px'} height={"100px"} bgcolor={"blue"}>
-                  <img src={`https://source.unsplash.com/150x150/?${name}`} alt={name} width={100} height={100} />
+                  <img src={image} alt={name} width={100} height={100} />
                 </Box>
                 <Stack display={'flex'} justifyContent={'space-between'} alignItems={'center'} direction={'row'} gap={50}>
                   <Stack direction={"column"} gap={4}>
@@ -309,7 +306,7 @@ export default function Home() {
                         name.charAt(0).toUpperCase() + name.slice(1)
                       }
                     </Typography>
-                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"}>Pantry</Typography>
+                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"}>{catagory}</Typography>
                   </Stack>
                   <Stack direction={"column"} gap={4}>
                     <Typography
