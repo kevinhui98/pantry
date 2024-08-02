@@ -113,18 +113,6 @@ export default function Home() {
     // });
     // setPantry(pantryList);
   }
-  // const OpenCamera = async () => {
-  //   const camera = useRef(null);
-  //   const [image, setImage] = useState(null);
-
-  //   return (
-  //     <div>
-  //       <Camera ref={camera} />
-  //       <button onClick={() => setImage(camera.current.takePhoto())}>Take photo</button>
-  //       <image src={image} alt='Taken photo' />
-  //     </div>
-  //   );
-  // }
   function ChildModal() {
     const camera = useRef(null);
     const [image, setImage] = useState(null);
@@ -146,15 +134,15 @@ export default function Home() {
           aria-labelledby="child-modal-title"
           aria-describedby="child-modal-description"
         >
-          <Box width={640} sx={{ ...style }}>
+          <Box sx={{ ...style }}>
             <CloseIcon onClick={handleClose} />
             {image === null ?
               <Stack direction={'column'} gap={2} >
-                <Camera ref={camera} aspectRatio={16 / 9} />
+                <Camera ref={camera} aspectRatio={4 / 3} />
                 <Button variant={"contained"} color={"primary"} onClick={() => setImage(camera.current.takePhoto())}>Take photo</Button>
               </Stack> :
               <Stack direction={'column'} gap={2}>
-                <img aspectRatio={16 / 9} src={image} alt='Taken photo' />
+                <img aspectRatio={4 / 3} src={image} alt='Taken photo' />
                 <Button variant={"contained"} color={"primary"} onClick={() => { setImage(null); }}>retake</Button>
                 <Button variant={"contained"} color={"primary"} onClick={() => { setSaveImage(image); }}>Save</Button>
               </Stack>
@@ -290,8 +278,8 @@ export default function Home() {
                 gap={2}
                 paddingX={5}
               >
-                <Box width={'100px'} height={"100px"} bgcolor={"blue"}>
-                  <img src={image} alt={name} width={100} height={100} />
+                <Box width={110} height={82.5} bgcolor={"blue"}>
+                  <img src={image} alt={name} aspectRatio={4 / 3} width={110} height={82.5} />
                 </Box>
                 <Stack display={'flex'} justifyContent={'space-between'} alignItems={'center'} direction={'row'} gap={50}>
                   <Stack direction={"column"} gap={4}>
