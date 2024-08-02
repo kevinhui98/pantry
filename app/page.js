@@ -1,10 +1,12 @@
 'use client'
 import { Box, Stack, Typography, Button, Modal, TextField, IconButton, MenuItem, FormControl, Select, InputLabel } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 import { firestore } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useRef, Fragment } from "react";
+// import { Camera } from "./Camera";
+import { Camera } from "react-camera-pro";
 // Modal style
 const style = {
   position: 'absolute',
@@ -20,6 +22,7 @@ const style = {
   flexDirection: 'column',
   gap: 3,
 };
+
 
 export default function Home() {
   const [pantry, setPantry] = useState([]);
@@ -43,6 +46,7 @@ export default function Home() {
   const [catagory, setCatagory] = useState('');
   const [searchItem, setSearchItem] = useState('');
   const [itemCount, setItemCount] = useState(0);
+  const [saveImage, setSaveImage] = useState(null);
   // useEffect to get all the pantry items from firestore
   const updatePantries = async () => {
     //create a query to get all the documents in the pantry collection
@@ -112,6 +116,57 @@ export default function Home() {
     // console.log(pantryList);
     // setPantry(pantryList);
   }
+  // const OpenCamera = async () => {
+  //   const camera = useRef(null);
+  //   const [image, setImage] = useState(null);
+
+  //   return (
+  //     <div>
+  //       <Camera ref={camera} />
+  //       <button onClick={() => setImage(camera.current.takePhoto())}>Take photo</button>
+  //       <image src={image} alt='Taken photo' />
+  //     </div>
+  //   );
+  // }
+  function ChildModal() {
+    const camera = useRef(null);
+    const [image, setImage] = useState(null);
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    return (
+      <Fragment>
+        {saveImage !== null ? <img src={saveImage} alt='Taken photo' /> : null}
+        <Button onClick={handleOpen}>Take Picture</Button>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="child-modal-title"
+          aria-describedby="child-modal-description"
+        >
+          <Box width={640} sx={{ ...style }}>
+            <CloseIcon onClick={handleClose} />
+            {image === null ?
+              <Stack direction={'column'} gap={2} >
+                <Camera ref={camera} aspectRatio={16 / 9} />
+                <Button variant={"contained"} color={"primary"} onClick={() => setImage(camera.current.takePhoto())}>Take photo</Button>
+              </Stack> :
+              <Stack direction={'column'} gap={2}>
+                <img aspectRatio={16 / 9} src={image} alt='Taken photo' />
+                <Button variant={"contained"} color={"primary"} onClick={() => { setImage(null); }}>retake</Button>
+                <Button variant={"contained"} color={"primary"} onClick={() => { setSaveImage(image); }}>Save</Button>
+              </Stack>
+            }
+          </Box>
+        </Modal>
+      </Fragment>
+    );
+  }
   return (
     <Box
       width="100vw"
@@ -167,6 +222,7 @@ export default function Home() {
                 </Select>
               </FormControl>
             </Stack>
+            <ChildModal />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
                 console.log(catagory, itemname)
@@ -207,10 +263,8 @@ export default function Home() {
       <Box>
         <Stack direction={"row"} spacing={4}>
           <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
-          <Box>
-            <Button variant={"contained"} color={"primary"}
-              onClick={handleSearchOpen}>Search</Button>
-          </Box>
+          <Button variant={"contained"} color={"primary"}
+            onClick={handleSearchOpen}>Search</Button>
         </Stack>
       </Box>
       <Box border={'1px solid #333'}>
@@ -220,7 +274,6 @@ export default function Home() {
           <Typography variant={"h2"} color={"#333"} textAlign={'center'}>
             Pantry Items
           </Typography>
-
         </Box>
         <Stack
           width={'800px'}
@@ -236,27 +289,45 @@ export default function Home() {
                 minHeight={'150px'}
                 bgcolor={'#f0f0f0'}
                 display={'flex'}
-                justifyContent={'space-between'}
                 alignItems={'center'}
+                gap={2}
                 paddingX={5}
               >
-                <Typography
-                  variant={"h3"}
-                  color={"#333"}
-                  textAlign={'center'}>
-                  {
-                    // Capitalize the first letter fo the item
-                    name.charAt(0).toUpperCase() + name.slice(1)
-                  }
-                </Typography>
-                <Typography
-                  variant={"h3"}
-                  color={"#333"}
-                  textAlign={'center'}>
-                  Quantity: {count}</Typography>
-                <IconButton aria-label="delete" color={"error"} onClick={() => removeItem(name)}>
-                  <DeleteIcon />
-                </IconButton>
+                <Box width={'100px'} height={"100px"} bgcolor={"blue"}>
+                  <img src={`https://source.unsplash.com/150x150/?${name}`} alt={name} width={100} height={100} />
+                </Box>
+                <Stack display={'flex'} justifyContent={'space-between'} alignItems={'center'} direction={'row'} gap={50}>
+                  <Stack direction={"column"} gap={4}>
+                    <Typography
+                      variant={"h4"}
+                      color={"#333"}
+                      textAlign={'center'}
+
+                    >
+                      {
+                        // Capitalize the first letter fo the item
+                        name.charAt(0).toUpperCase() + name.slice(1)
+                      }
+                    </Typography>
+                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"}>Pantry</Typography>
+                  </Stack>
+                  <Stack direction={"column"} gap={4}>
+                    <Typography
+                      variant={"h8"}
+                      color={"#333"}
+                      textAlign={'center'}
+                      display={'flex'}
+                      justifyContent={'center'}
+                      alignItems={'center'}
+                    >
+                      Quantity: {count}</Typography>
+                    <IconButton aria-label="delete" color={"error"} onClick={() => removeItem(name)} display={"flex"}
+                      justifyContent={'end'}
+                      alignItems={'end'}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                </Stack>
               </Box>
             ))
           }
