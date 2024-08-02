@@ -63,9 +63,8 @@ export default function Home() {
   useEffect(() => {
     updatePantries();
   }, []);
-  const addItem = async (cat, item, quantity, img) => {
-    if (cat === "") cat = "pantry";
-    const docRef = doc(collection(firestore, cat), item)
+  const addItem = async (cat = 'pantry', item, quantity, img) => {
+    const docRef = doc(collection(firestore, "pantry"), item)
     const subCat = await getDoc(docRef);
     //if the document already exists, update the count
     if (subCat.exists()) {
