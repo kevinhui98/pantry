@@ -1,5 +1,5 @@
 'use client'
-import { Box, Stack, Typography, Button, Modal, TextField, IconButton, MenuItem, FormControl, Select, InputLabel } from "@mui/material";
+import { Box, Stack, Typography, Button, Modal, TextField, IconButton, MenuItem, FormControl, Select, InputLabel, Grid } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import { firestore } from "../firebase";
@@ -160,26 +160,22 @@ export default function Home() {
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
-      gap={2}
-    >
+      gap={2}>
       <Modal
         open={addOpen}
         onClose={handleAddClose}
         aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+        aria-describedby="modal-modal-description">
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add Item
           </Typography>
           <Stack direction={"column"} spacing={2}>
             <TextField id="outlined-basic" label="pantry (optional)" variant="outlined" fullWidth
-              onChange={(e) => setCatagory(e.target.value)}
-            />
+              onChange={(e) => setCatagory(e.target.value)} />
             <Stack direction={'row'} spacing={2}>
               <TextField id="outlined-basic" label="item" variant="outlined" fullWidth
-                onChange={(e) => setItemName(e.target.value)} required
-              />
+                onChange={(e) => setItemName(e.target.value)} required />
               <FormControl sx={{ m: 1, minWidth: 120 }} >
                 <InputLabel id="demo-controlled-open-select-label">Quantity</InputLabel>
                 <Select
@@ -193,8 +189,7 @@ export default function Home() {
                   onChange={(e) => {
                     setQuantity(e.target.value)
                     handleQuantityClose
-                  }}
-                >
+                  }}>
                   <MenuItem value={1}>1</MenuItem>
                   <MenuItem value={2}>2</MenuItem>
                   <MenuItem value={3}>3</MenuItem>
@@ -216,7 +211,9 @@ export default function Home() {
                 setQuantity(1)
                 setSaveImage(null)
                 handleAddClose()
-              }}>Add</Button>
+              }}>
+              Add
+            </Button>
           </Stack>
         </Box>
       </Modal>
@@ -254,8 +251,7 @@ export default function Home() {
       </Box>
       <Box border={'1px solid #333'}>
         <Box width={"800px"} height={"100px"} bgcolor={"#ADD8E6"} display={"flex"}
-          justifyContent={"center"} alignItems={"center"}
-        >
+          justifyContent={"center"} alignItems={"center"}>
           <Typography variant={"h2"} color={"#333"} textAlign={'center'}>
             Pantry Items
           </Typography>
@@ -264,8 +260,7 @@ export default function Home() {
           width={'800px'}
           height={'600px'}
           spacing={2}
-          overflow={'scroll'}
-        >
+          overflow={'scroll'}>
           {
             pantry.map(({ name, count, catagory = 'pantry', image = "pantry" }) => (
               <Box
@@ -276,43 +271,43 @@ export default function Home() {
                 display={'flex'}
                 alignItems={'center'}
                 gap={2}
-                paddingX={5}
-              >
-                <Box width={110} height={82.5} bgcolor={"blue"}>
+                paddingX={5}>
+                <Box width={133} height={82.5} bgcolor={"blue"}>
                   <img src={image} alt={name} aspectRatio={4 / 3} width={110} height={82.5} />
                 </Box>
-                <Stack display={'flex'} justifyContent={'space-between'} alignItems={'center'} direction={'row'} gap={50}>
-                  <Stack direction={"column"} gap={4}>
+                <Grid container justifyContent={'space-between'} alignItems={'center'} direction={'row'} spacing={{ xs: 1, sm: 2 }}>
+                  <Grid item md={8}>
                     <Typography
                       variant={"h4"}
                       color={"#333"}
-                      textAlign={'center'}
-
-                    >
-                      {
-                        // Capitalize the first letter fo the item
-                        name.charAt(0).toUpperCase() + name.slice(1)
-                      }
+                      textAlign={'left'}>
+                      {name.charAt(0).toUpperCase() + name.slice(1)}
                     </Typography>
-                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"}>{catagory}</Typography>
-                  </Stack>
-                  <Stack direction={"column"} gap={4}>
+                  </Grid>
+                  <Grid item>
                     <Typography
                       variant={"h8"}
                       color={"#333"}
                       textAlign={'center'}
                       display={'flex'}
                       justifyContent={'center'}
-                      alignItems={'center'}
-                    >
+                      alignItems={'center'}>
                       Quantity: {count}</Typography>
-                    <IconButton aria-label="delete" color={"error"} onClick={() => removeItem(name)} display={"flex"}
+                  </Grid>
+                  <Grid item md={8}>
+                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"} >{catagory}</Typography>
+                  </Grid>
+                  <Grid item>
+                    <IconButton
+                      aria-label="delete"
+                      color={"error"}
+                      onClick={() => removeItem(name)} display={"flex"}
                       justifyContent={'end'}
                       alignItems={'end'}>
                       <DeleteIcon />
                     </IconButton>
-                  </Stack>
-                </Stack>
+                  </Grid>
+                </Grid>
               </Box>
             ))
           }
