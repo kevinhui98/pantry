@@ -154,9 +154,7 @@ export default function Home() {
   // add quantity slider
   const [value, setValue] = useState(1);
   const handleSliderChange = (event, newValue) => setValue(newValue);
-  const handleInputChange = (event) => {
-    setValue(event.target.value === '' ? 1 : Number(event.target.value));
-  };
+  const handleInputChange = (event) => setValue(event.target.value === '' ? 1 : Number(event.target.value));
   const handleBlur = () => {
     if (value < 1) {
       setValue(1);
@@ -172,6 +170,7 @@ export default function Home() {
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
+      paddingTop={15}
       gap={2}>
       <Modal
         open={addOpen}
@@ -285,7 +284,7 @@ export default function Home() {
             </Button>
           </Stack>
         </Box>
-      </Modal >
+      </Modal>
       <Modal
         open={searchOpen}
         onClose={handleSearchClose}
@@ -334,7 +333,7 @@ export default function Home() {
           spacing={2}
           overflow={'scroll'}>
           {
-            pantry.map(({ name, count, catagory = 'pantry', image = "pantry" }) => (
+            pantry.map(({ name, count, catagory, image }) => (
               <Box
                 key={name}
                 width={'100%'}
@@ -384,6 +383,6 @@ export default function Home() {
           }
         </Stack>
       </Box>
-    </Box >
+    </Box>
   );
 }
