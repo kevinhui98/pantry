@@ -64,6 +64,7 @@ export default function Home() {
     updatePantries();
   }, []);
   const addItem = async (cat = 'pantry', item, quantity, img) => {
+    if (cat === '') cat = 'pantry';
     const docRef = doc(collection(firestore, "pantry"), item)
     const subCat = await getDoc(docRef);
     //if the document already exists, update the count
@@ -182,47 +183,11 @@ export default function Home() {
             Add Item
           </Typography>
           <Stack direction={"column"} spacing={2} >
-            <TextField id="outlined-basic" label="pantry (optional)" variant="outlined" fullWidth
+            <TextField id="outlined-basic" label="Pantry (Optional)" variant="outlined" fullWidth
               onChange={(e) => setCatagory(e.target.value)} />
             <Stack direction={'row'} spacing={2}>
-              <TextField id="outlined-basic" label="item" variant="outlined" fullWidth
+              <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
                 onChange={(e) => setItemName(e.target.value)} required />
-              {/* <FormControl sx={{ m: 1, minWidth: 120 }} >
-                <InputLabel id="demo-controlled-open-select-label">Quantity</InputLabel>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  open={quantityOpen}
-                  onClose={handleQuantityClose}
-                  onOpen={handleQuantityOpen}
-                  label="Quantity"
-                  value={quantity}
-                  onChange={(e) => {
-                    setQuantity(e.target.value)
-                    handleQuantityClose
-                  }}>
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                  <MenuItem value={6}>6</MenuItem>
-                  <MenuItem value={7}>7</MenuItem>
-                  <MenuItem value={8}>8</MenuItem>
-                  <MenuItem value={9}>9</MenuItem>
-                </Select>
-              </FormControl> */}
-              {/* <Divider orientation="vertical" flexItem />
-              <Slider
-                defaultValue={1}
-                step={1}
-                min={1}
-                max={10}
-                valueLabelDisplay="auto"
-                justifyContent={"center"}
-                alignItems={"center"}
-                onChange={(e, value) => setQuantity(value)}
-              /> */}
             </Stack>
             <Box id={"quantity"}>
               <Typography id="input-slider" gutterBottom>
@@ -248,7 +213,7 @@ export default function Home() {
                 </Grid>
                 <Grid item>
                   <IconButton sx={{ cursor: 'pointer' }} onClick={(e) => {
-                    if (value > 10) handleSliderChange(e, value + 1)
+                    if (value < 10) handleSliderChange(e, value + 1)
                   }} onChange={handleSliderChange}>
                     <Add />
                   </IconButton>
@@ -318,6 +283,7 @@ export default function Home() {
           <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
           <Button variant={"contained"} color={"primary"} onClick={handleSearchOpen}>Search</Button>
           <Button variant={"contained"} color={"primary"} onClick={updatePantries} startIcon={<RefreshIcon />}> Refresh</Button>
+          {/* <Button variant={"contained"} color={"primary"} >GPT</Button> */}
         </Stack>
       </Box>
       <Box border={'1px solid #333'}>
@@ -363,7 +329,15 @@ export default function Home() {
                       display={'flex'}
                       justifyContent={'center'}
                       alignItems={'center'}>
-                      Quantity: {count}</Typography>
+                      Quantity:
+                      <IconButton>
+                        <Remove />
+                      </IconButton>
+                      {count}
+                      <IconButton>
+                        <Add />
+                      </IconButton>
+                    </Typography>
                   </Grid>
                   <Grid item md={8}>
                     <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"} >{catagory}</Typography>
