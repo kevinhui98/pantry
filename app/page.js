@@ -5,7 +5,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Remove from "@mui/icons-material/Remove";
 import Add from "@mui/icons-material/Add";
-import { firestore } from "../firebase";
+import GoogleIcon from '@mui/icons-material/Google';
+import { firestore, auth, GoogleAuthProvider, signInWithPopup } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { Camera } from "react-camera-pro";
@@ -163,15 +164,36 @@ export default function Home() {
       setValue(10);
     }
   };
+  var firebase = require('firebase');
+  var firebaseui = require('firebaseui');
+  const OAuth = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+  }
   return (
     <Box
-      width="100vw"
-      height="100vh"
       display={"flex"}
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
-      paddingTop={15}
+      paddingTop={5}
       gap={2}>
       <Modal
         open={addOpen}
@@ -278,6 +300,9 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
+      <IconButton onClick={OAuth}>
+        <GoogleIcon />
+      </IconButton>
       <Box>
         <Stack direction={"row"} spacing={4} divider={<Divider orientation="vertical" flexItem />}>
           <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
