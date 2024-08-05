@@ -169,7 +169,8 @@ export default function Home() {
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
-      gap={2}>
+      gap={2}
+    >
       <Modal id={"add-modal"}
         open={addOpen}
         onClose={handleAddClose}
@@ -341,6 +342,9 @@ export default function Home() {
           width={'100vw'}
           height={'90vh'}
           gap={4}
+          sx={{
+            "background-image": "url(https://img.freepik.com/free-vector/empty-shelf-home-pantry-storage-cartoon-illustration-cellar-storehouse-interior-organise-food-vegetables-box-basement-room-nobody-wooden-underground-storeroom-with-bottle-spill_107791-21928.jpg?t=st=1722820854~exp=1722824454~hmac=27c19c19e83e35186665edab95a1ddcfd7c405f250d1d6c6455c1ebf8abc9ad1&w=1800)",
+          }}
           // spacing={2}
           // spacing={{ xs: 12, md: 4, lg: 2 }}
           paddingX={5}
@@ -418,6 +422,6 @@ export default function Home() {
         </Grid>
       </Box>
       {/* </Stack> */}
-    </Box>
+    </Box >
   );
 }
