@@ -10,7 +10,8 @@ import { firestore } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { Camera } from "react-camera-pro";
-import { Exo_2 } from "next/font/google";
+
+
 // Modal style
 const style = {
   position: 'absolute',
@@ -61,6 +62,7 @@ export default function Home() {
   }, []);
   const addItem = async (cat = 'pantry', item, quantity, img) => {
     if (cat === '') cat = 'pantry';
+    if (img === null) img = 'https://st.depositphotos.com/2218212/2938/i/450/depositphotos_29387653-stock-photo-facebook-profile.jpg';
     const docRef = doc(collection(firestore, "pantry"), item)
     const subCat = await getDoc(docRef);
     //if the document already exists, update the count
@@ -174,9 +176,13 @@ export default function Home() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description">
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Add Item
-          </Typography>
+          <Stack direction={"row"} justifyContent={'space-between'} alignContent={"center"}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Add Item
+            </Typography>
+            <CloseIcon onClick={handleAddClose} sx={{ cursor: 'pointer' }} />
+          </Stack>
+
           <Stack direction={"column"} spacing={2} >
             <TextField id="outlined-basic" label="Pantry (Optional)" variant="outlined" fullWidth
               onChange={(e) => setcategory(e.target.value)} />
@@ -252,12 +258,15 @@ export default function Home() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Search Item
-          </Typography>
+          <Stack direction={"row"} justifyContent={'space-between'} alignContent={"center"}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Search Item
+            </Typography>
+            <CloseIcon onClick={handleSearchClose} sx={{ cursor: 'pointer' }} />
+          </Stack>
           <Stack direction={"column"} spacing={2}>
             <TextField id="outlined-basic" label="category" variant="outlined" fullWidth
-              onChange={(e) => setSearchcategory(e.target.value)}
+              onChange={(e) => setSearchCategory(e.target.value)}
             />
             <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
               onChange={(e) => setSearchItem(e.target.value)}
@@ -265,9 +274,9 @@ export default function Home() {
             <Divider orientation="horizontal" flexItem />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                search(searchItem, searchcategory)
+                search(searchItem, searchCategory)
                 setSearchItem("")
-                setSearchcategory("")
+                setSearchCategory("")
                 handleSearchClose()
               }}>Search</Button>
           </Stack>
@@ -325,7 +334,8 @@ export default function Home() {
             </Stack>
           </Box>
         </Box>
-        <Grid container
+        <Grid
+          container
           // columns={{ xs: 1, sm: 1, md: 3, lg: 4 }}
           columns={14}
           width={'100vw'}
@@ -364,13 +374,10 @@ export default function Home() {
                 padding={2}
                 sx={{ borderRadius: '5%' }}
                 > */}
-                <Grid item
-                  // aspectRatio={4 / 3}
-                  // width={'75%'} height={'100%'} 
-                  bgcolor={"blue"} sx={{ borderRadius: '5%' }}>
-                  <img src={image} alt={name} aspectpatio={4 / 3} width={'100%'} height={'100%'} sx={{ borderRadius: '5%' }} />
-                </Grid>
-                <Grid item container>
+                <Box item>
+                  <img src={image} alt={name} aspectpatio={4 / 3} width={'100%'} height={'100%'} />
+                </Box>
+                <Grid item container direction={'row'}>
                   <Grid item container direction={'column'} gap={2}>
                     <Grid item>
                       <Typography
