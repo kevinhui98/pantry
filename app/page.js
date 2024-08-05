@@ -5,10 +5,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Remove from "@mui/icons-material/Remove";
 import Add from "@mui/icons-material/Add";
+import SearchIcon from '@mui/icons-material/Search';
 import { firestore } from "../firebase";
 import { collection, doc, getDocs, query, setDoc, deleteDoc, getDoc, where } from "firebase/firestore";
 import { useEffect, useState, useRef, Fragment } from "react";
 import { Camera } from "react-camera-pro";
+import { Exo_2 } from "next/font/google";
 // Modal style
 const style = {
   position: 'absolute',
@@ -34,18 +36,12 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const handleSearchOpen = () => setSearchOpen(true);
   const handleSearchClose = () => setSearchOpen(false);
-  // Quantity state
-  const [quantity, setQuantity] = useState(1);
-  const [quantityOpen, setQuantityOpen] = useState(false);
-  const handleQuantityChange = (event) => setQuantity(event.target.value);
-  const handleQuantityClose = () => setQuantityOpen(false);
-  const handleQuantityOpen = () => setQuantityOpen(true);
 
   // Searching for items within modal
   const [itemname, setItemName] = useState('');
-  const [catagory, setCatagory] = useState('');
+  const [category, setcategory] = useState('');
   const [searchItem, setSearchItem] = useState('');
-  const [searchCatagory, setSearchCatagory] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
   const [saveImage, setSaveImage] = useState(null);
   // useEffect to get all the pantry items from firestore
   const updatePantries = async () => {
@@ -73,11 +69,11 @@ export default function Home() {
       const name = subCat.data().name;
       if (img === null) img = subCat.data().image;
       const count = subCat.data().count + quantity;
-      await setDoc(docRef, { name, count, catagory: cat, image: img });
+      await setDoc(docRef, { name, count, category: cat, image: img });
     }
     else {
       //if the document does not exist, create a new document with the item name and count 1
-      await setDoc(docRef, { name: item, count: quantity, catagory: cat, image: img });
+      await setDoc(docRef, { name: item, count: quantity, category: cat, image: img });
 
     }
     await updatePantries();
@@ -94,7 +90,7 @@ export default function Home() {
     //create a query to get the document with the item name
     const pantryref = collection(firestore, 'pantry')
     const q1 = query(pantryref, where('name', '==', item))
-    const q2 = query(pantryref, where('catagory', '==', cat))
+    const q2 = query(pantryref, where('category', '==', cat))
     const querySnapshot1 = await getDocs(q1);
     const querySnapshot2 = await getDocs(q2);
     const pantryList = [];
@@ -153,14 +149,14 @@ export default function Home() {
     );
   }
   // add quantity slider
-  const [value, setValue] = useState(1);
-  const handleSliderChange = (event, newValue) => setValue(newValue);
-  const handleInputChange = (event) => setValue(event.target.value === '' ? 1 : Number(event.target.value));
+  const [quantity, setQuantity] = useState(1);
+  const handleSliderChange = (event, newValue) => setQuantity(newValue);
+  const handleInputChange = (event) => setQuantity(event.target.value === '' ? 1 : Number(event.target.value));
   const handleBlur = () => {
-    if (value < 1) {
-      setValue(1);
-    } else if (value > 10) {
-      setValue(10);
+    if (quantity < 1) {
+      setQuantity(1);
+    } else if (quantity > 10) {
+      setQuantity(10);
     }
   };
   return (
@@ -171,9 +167,8 @@ export default function Home() {
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
-      paddingTop={15}
       gap={2}>
-      <Modal
+      <Modal id={"add-modal"}
         open={addOpen}
         onClose={handleAddClose}
         aria-labelledby="modal-modal-title"
@@ -184,7 +179,7 @@ export default function Home() {
           </Typography>
           <Stack direction={"column"} spacing={2} >
             <TextField id="outlined-basic" label="Pantry (Optional)" variant="outlined" fullWidth
-              onChange={(e) => setCatagory(e.target.value)} />
+              onChange={(e) => setcategory(e.target.value)} />
             <Stack direction={'row'} spacing={2}>
               <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
                 onChange={(e) => setItemName(e.target.value)} required />
@@ -196,14 +191,14 @@ export default function Home() {
               <Grid container spacing={2} alignItems="center">
                 <Grid item>
                   <IconButton sx={{ cursor: 'pointer' }} onClick={(e) => {
-                    if (value > 1) handleSliderChange(e, value - 1)
+                    if (value > 1) handleSliderChange(e, quantity - 1)
                   }} onChange={handleSliderChange}>
                     <Remove />
                   </IconButton>
                 </Grid>
                 <Grid item xs>
                   <Slider
-                    value={typeof value === 'number' ? value : 1}
+                    value={typeof quantity === 'number' ? quantity : 1}
                     onChange={handleSliderChange}
                     aria-labelledby="input-slider"
                     step={1}
@@ -213,14 +208,14 @@ export default function Home() {
                 </Grid>
                 <Grid item>
                   <IconButton sx={{ cursor: 'pointer' }} onClick={(e) => {
-                    if (value < 10) handleSliderChange(e, value + 1)
+                    if (quantity < 10) handleSliderChange(e, quantity + 1)
                   }} onChange={handleSliderChange}>
                     <Add />
                   </IconButton>
                 </Grid>
                 <Grid item>
                   <Input
-                    value={value}
+                    value={quantity}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
                     inputProps={{
@@ -238,8 +233,8 @@ export default function Home() {
             <Divider orientation="horizontal" flexItem />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                addItem(catagory, itemname, quantity, saveImage)
-                setCatagory("")
+                addItem(category, itemname, quantity, saveImage)
+                setcategory("")
                 setItemName("")
                 setQuantity(1)
                 setSaveImage(null)
@@ -250,7 +245,7 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
-      <Modal
+      <Modal id={"quantity-modal"}
         open={searchOpen}
         onClose={handleSearchClose}
         aria-labelledby="modal-modal-title"
@@ -261,8 +256,8 @@ export default function Home() {
             Search Item
           </Typography>
           <Stack direction={"column"} spacing={2}>
-            <TextField id="outlined-basic" label="Catagory" variant="outlined" fullWidth
-              onChange={(e) => setSearchCatagory(e.target.value)}
+            <TextField id="outlined-basic" label="category" variant="outlined" fullWidth
+              onChange={(e) => setSearchcategory(e.target.value)}
             />
             <TextField id="outlined-basic" label="Item" variant="outlined" fullWidth
               onChange={(e) => setSearchItem(e.target.value)}
@@ -270,93 +265,152 @@ export default function Home() {
             <Divider orientation="horizontal" flexItem />
             <Button variant={"contained"} color={"primary"}
               onClick={() => {
-                search(searchItem, searchCatagory)
+                search(searchItem, searchcategory)
                 setSearchItem("")
-                setSearchCatagory("")
+                setSearchcategory("")
                 handleSearchClose()
               }}>Search</Button>
           </Stack>
         </Box>
       </Modal>
-      <Box>
-        <Stack direction={"row"} spacing={4} divider={<Divider orientation="vertical" flexItem />}>
-          <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
-          <Button variant={"contained"} color={"primary"} onClick={handleSearchOpen}>Search</Button>
-          <Button variant={"contained"} color={"primary"} onClick={updatePantries} startIcon={<RefreshIcon />}> Refresh</Button>
-          {/* <Button variant={"contained"} color={"primary"} >GPT</Button> */}
-        </Stack>
-      </Box>
+      {/* <Stack direction={'row'} spacing={2}> */}
+      {/* <Box width={370}>
+          <Stack direction={"row"}>
+            <TextField id="filled-basic" label="Category (optional)" variant="outlined" fullWidth
+              onChange={(e) => setSearchcategory(e.target.value)}
+            />
+            <TextField id="filled-basic" label="Item (optional)" variant="outlined" fullWidth
+              onChange={(e) => setSearchItem(e.target.value)}
+            />
+            <IconButton variant={"contained"} color={"primary"} onClick={() => {
+              search(searchItem, searchCategory)
+              setSearchItem("")
+              setSearchcategory("")
+              handleSearchClose()
+            }}>
+              <SearchIcon />
+            </IconButton>
+          </Stack>
+        </Box> */}
       <Box border={'1px solid #333'}>
-        <Box width={"800px"} height={"100px"} bgcolor={"#ADD8E6"} display={"flex"}
-          justifyContent={"center"} alignItems={"center"}>
+        <Box bgcolor={"#ADD8E6"} display={"flex"}
+          justifyContent={"space-between"} alignItems={"center"} paddingX={1}>
           <Typography variant={"h2"} color={"#333"} textAlign={'center'}>
             Pantry Items
           </Typography>
+          <Box id={'nav-bar'}>
+            <Stack direction={"row"} spacing={1}>
+              {/* <Box>
+                <Stack direction={"row"}>
+                  <TextField id="filled-basic" label="Category (optional)" variant="outlined" fullWidth
+                    onChange={(e) => setSearchcategory(e.target.value)}
+                  />
+                  <TextField id="filled-basic" label="Item (optional)" variant="outlined" fullWidth
+                    onChange={(e) => setSearchItem(e.target.value)}
+                  />
+                  <IconButton variant={"contained"} color={"primary"} onClick={() => {
+                    search(searchItem, searchCategory)
+                    setSearchItem("")
+                    setSearchcategory("")
+                    handleSearchClose()
+                  }}>
+                    <SearchIcon />
+                  </IconButton>
+                </Stack>
+              </Box> */}
+              <Button variant={"contained"} color={"primary"} onClick={handleAddOpen}>Add</Button>
+              <Button variant={"contained"} color={"primary"} onClick={handleSearchOpen} startIcon={< SearchIcon />}>Search</Button>
+              <Button variant={"contained"} color={"primary"} onClick={updatePantries} startIcon={<RefreshIcon />}> Refresh</Button>
+              {/* <Button variant={"contained"} color={"primary"} >GPT</Button> */}
+            </Stack>
+          </Box>
         </Box>
-        <Stack
-          width={'800px'}
-          height={'600px'}
-          spacing={2}
-          overflow={'scroll'}>
+        <Grid container
+          // columns={{ xs: 1, sm: 1, md: 3, lg: 4 }}
+          columns={14}
+          width={'100vw'}
+          height={'90vh'}
+          gap={4}
+          // spacing={2}
+          // spacing={{ xs: 12, md: 4, lg: 2 }}
+          paddingX={5}
+          paddingY={5}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          overflow={'scroll'}
+        >
           {
-            pantry.map(({ name, count, catagory, image }) => (
-              <Box
+            pantry.map(({ name, count, category, image }) => (
+              <Grid item
+                xs={12} sm={8} md={4} lg={3}
                 key={name}
-                width={'100%'}
-                minHeight={'150px'}
+                padding={2}
+                sx={{ borderRadius: '5%' }}
+                // spacing={2}
+                // direction={'column'}
                 bgcolor={'#f0f0f0'}
                 display={'flex'}
+                justifyContent={'center'}
                 alignItems={'center'}
-                gap={2}
-                paddingX={5}>
-                <Box width={133} height={82.5} bgcolor={"blue"}>
-                  <img src={image} alt={name} aspectpatio={4 / 3} width={110} height={82.5} />
-                </Box>
-                <Grid container justifyContent={'space-between'} alignItems={'center'} direction={'row'} spacing={{ xs: 1, sm: 2 }}>
-                  <Grid item md={8}>
-                    <Typography
-                      variant={"h4"}
-                      color={"#333"}
-                      textAlign={'left'}>
-                      {name.charAt(0).toUpperCase() + name.slice(1)}
-                    </Typography>
+                container>
+                {/* <Box
+                margin={1}
+                width={{ xs: '100vw', md: '75%', lg: '30vw' }}
+                direction={{ xs: 'row', md: 'column', lg: 'column' }}
+                display={'flex'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                padding={2}
+                sx={{ borderRadius: '5%' }}
+                > */}
+                <Grid item
+                  // aspectRatio={4 / 3}
+                  // width={'75%'} height={'100%'} 
+                  bgcolor={"blue"} sx={{ borderRadius: '5%' }}>
+                  <img src={image} alt={name} aspectpatio={4 / 3} width={'100%'} height={'100%'} sx={{ borderRadius: '5%' }} />
+                </Grid>
+                <Grid item container>
+                  <Grid item container direction={'column'} gap={2}>
+                    <Grid item>
+                      <Typography
+                        variant={"h4"}
+                        color={"#333"}
+                        textAlign={'left'}>
+                        {name.charAt(0).toUpperCase() + name.slice(1)}
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography>{category}</Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Typography
-                      variant={"h8"}
-                      color={"#333"}
-                      textAlign={'center'}
-                      display={'flex'}
-                      justifyContent={'center'}
-                      alignItems={'center'}>
-                      Quantity:
-                      <IconButton>
-                        <Remove />
-                      </IconButton>
-                      {count}
-                      <IconButton>
-                        <Add />
-                      </IconButton>
-                    </Typography>
-                  </Grid>
-                  <Grid item md={8}>
-                    <Typography display={'flex'} justifyContent={'start'} alignItems={'center'} paddingLeft={"5px"} >{catagory}</Typography>
-                  </Grid>
-                  <Grid item>
-                    <IconButton
-                      aria-label="delete"
-                      color={"error"}
-                      onClick={() => removeItem(name)} display={"flex"}
-                      sx={{ cursor: 'pointer' }}>
-                      <DeleteIcon />
-                    </IconButton>
+                  <Grid item container direction={'column'} gap={2} display={'flex'} justifyContent={'flex-end'} alignItems={'flex-end'}>
+                    <Grid item>
+                      <Typography
+                        variant={"h8"} color={"#333"} textAlign={'center'}>
+                        <IconButton>
+                          <Remove />
+                        </IconButton>
+                        {count}
+                        <IconButton>
+                          <Add />
+                        </IconButton>
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Button color={"error"} variant="outlined" size="small"
+                        onClick={() => removeItem(name)} display={"flex"}
+                        sx={{ cursor: 'pointer' }} startIcon={<DeleteIcon />}>Remove</Button>
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Box>
+                {/* </Box> */}
+              </Grid>
             ))
           }
-        </Stack>
+        </Grid>
       </Box>
+      {/* </Stack> */}
     </Box>
   );
 }
