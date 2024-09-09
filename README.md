@@ -35,6 +35,21 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
+## Resources
+
+- bill zhang's step by step code walkthrough: https://medium.com/@billzhangsc/building-an-inventory-management-app-with-next-js-react-and-firebase-e9647a61eb82
+- bill zhang's original pantry tracker app tutorial: https://www.loom.com/share/5f3586506a7746b58998d357737483b5
+- build a NextJS App with Firebase: https://www.youtube.com/watch?v=uikATllLdRc&ab_channel=CodeCommerce
+- How to deploy a Next.js App with vercel: https://www.youtube.com/watch?v=2HBIzEx6IZA&ab_channel=PedroTech
+- Learn Material UI in 10 min: https://www.youtube.com/watch?v=FB-sKY63AWo&ab_channel=FrontStart
+- 12 concepts to know in Next.js: https://www.youtube.com/watch?v=vwSlYG7hFk0&ab_channel=ByteGrad
+- Modern React tutorial (Next.js): https://www.youtube.com/watch?v=d5x0JCZbAJs&ab_channel=Theo-t3%E2%80%A4gg
+- What is Firebase and how to use it: https://www.youtube.com/watch?v=p9pgI3Mg-So&ab_channel=Firebase
+- OpenAI Vision API crash Course - Chat with Images: https://www.youtube.com/watch?v=ZjkS11DSeEk&ab_channel=LeonvanZyl
+- React Mobile camera: https://www.npmjs.com/package/react-camera-pro
+- Training an image classification model with vertex AI: https://www.youtube.com/watch?v=8jM9Gmm9Bsw&ab_channel=TimothyJames
+- train an AutoML image classification model: https://cloud.google.com/vertex-ai/docs/tutorials/image-classification-automl/training
+- Free API to access the LLama 3.1 LLM: https://openrouter.ai/models/meta-llama/llama-3.1-8b-instruct:free
 
 
 Set up a Next.js project with Material UI components
