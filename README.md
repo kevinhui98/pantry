@@ -34,3 +34,27 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+
+Set up a Next.js project with Material UI components
+
+Implement a Firebase backend for data storage
+
+Create a form to add, delete, and update pantry items
+
+Add a search or filter functionality to easily find items
+
+Create a presentable frontend design to display all pantry items
+
+Deploy to Vercel and use CI/CD
+
+By Sunday 8/4 6pm EST, make a Reddit post titled [Project 2 | Name | Difficulty Level 1/2/3/4] with your deployed application link
+
+Bonus: Take images with mobile or browser camera and upload to Firebase
+
+Bonus: Use GPT Vision API or other LLMs to classify images and then update to Firebase
+
+Bonus: Use GCP Vertex AI and AutoML to classify 4-5 images of items near you and update Firebase
+
+Bonus: Add a recipe suggestion feature based on pantry contents using the OpenAI API or OpenRouter API
